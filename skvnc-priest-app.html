@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKVNC – Hindu Priest Services</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Mukta:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron: #E8631A;
+    --gold: #D4A017;
+    --deep-red: #8B1A1A;
+    --cream: #FDF5E6;
+    --dark: #1A0A00;
+    --soft-gold: #F5C842;
+    --card-bg: #FFF8EE;
+    --muted: #7A5C3A;
+    --border: #F0DFC0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Mukta', sans-serif;
+    padding: 20px;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: var(--cream);
+    border-radius: 50px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6), inset 0 0 0 2px #333;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; position: absolute; inset: 0; }
+  .screen.active { display: flex; animation: slideUp 0.3s ease; }
+  @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ─── HOME ─── */
+  .home-header {
+    background: linear-gradient(160deg, #6B0F0F 0%, #A52A2A 50%, #E8631A 100%);
+    padding: 48px 24px 28px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .home-header::before {
+    content:'';position:absolute;inset:0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  .app-name {
+    font-family: 'Playfair Display', serif;
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .greeting { color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 300; letter-spacing: 0.5px; }
+  .home-header h1 { font-family:'Playfair Display',serif; color:#fff; font-size:24px; margin-top:4px; line-height:1.25; }
+  .diya { position:absolute; right:20px; top:36px; font-size:50px; filter:drop-shadow(0 0 14px rgba(255,180,0,0.7)); animation:flicker 3s infinite alternate; }
+  @keyframes flicker { 0%,100%{opacity:1;transform:scale(1) rotate(-3deg);} 50%{opacity:.85;transform:scale(1.05) rotate(3deg);} }
+
+  .search-bar {
+    background: rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3);
+    border-radius:14px; padding:10px 14px; display:flex; align-items:center; gap:8px; margin-top:16px;
+  }
+  .search-bar span { color:rgba(255,255,255,0.65); font-size:13px; }
+
+  .home-scroll { flex:1; overflow-y:auto; padding-bottom:90px; }
+  .home-scroll::-webkit-scrollbar { display:none; }
+
+  .live-banner {
+    margin:18px 18px 0;
+    background: linear-gradient(135deg, #6B0F0F, #A52A2A);
+    border-radius:18px; padding:16px 18px; color:#fff;
+    display:flex; align-items:center; gap:12px;
+    box-shadow:0 8px 24px rgba(139,26,26,0.3);
+  }
+  .live-badge { background:#E02020; color:#fff; font-size:10px; font-weight:700; letter-spacing:1px; padding:3px 8px; border-radius:6px; animation:pulseRed 1.5s infinite; flex-shrink:0; }
+  @keyframes pulseRed { 0%,100%{opacity:1;} 50%{opacity:0.55;} }
+  .live-banner .ltitle { font-family:'Playfair Display',serif; font-size:15px; }
+  .live-banner .lsub { font-size:11px; opacity:0.7; margin-top:2px; }
+  .join-btn { margin-left:auto; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.35); border-radius:10px; padding:7px 12px; color:#fff; font-size:12px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+
+  .sec-head { display:flex; justify-content:space-between; align-items:center; padding:18px 18px 10px; }
+  .sec-head h2 { font-family:'Playfair Display',serif; font-size:17px; color:var(--dark); }
+  .sec-head a { color:var(--saffron); font-size:12px; cursor:pointer; }
+
+  .cat-scroll { display:flex; gap:9px; overflow-x:auto; padding:0 18px 4px; }
+  .cat-scroll::-webkit-scrollbar { display:none; }
+  .cat-chip { flex-shrink:0; background:var(--card-bg); border:1.5px solid var(--border); border-radius:14px; padding:9px 14px; text-align:center; cursor:pointer; transition:all .2s; }
+  .cat-chip.active { background:var(--saffron); border-color:var(--saffron); }
+  .cat-chip.active span, .cat-chip.active p { color:#fff !important; }
+  .cat-chip span { font-size:20px; display:block; margin-bottom:3px; }
+  .cat-chip p { font-size:10px; color:var(--muted); white-space:nowrap; }
+
+  .priest-cards { display:flex; gap:12px; overflow-x:auto; padding:0 18px 4px; }
+  .priest-cards::-webkit-scrollbar { display:none; }
+  .pcard { flex-shrink:0; width:145px; background:var(--card-bg); border-radius:18px; overflow:hidden; border:1px solid var(--border); cursor:pointer; transition:transform .2s; }
+  .pcard:hover { transform:translateY(-3px); }
+  .pcard .av { height:88px; display:flex; align-items:center; justify-content:center; font-size:46px; background:linear-gradient(135deg,#FFF0D0,#FFD9A0); }
+  .pcard .pi { padding:9px 11px; }
+  .pcard .pname { font-weight:600; font-size:12px; color:var(--dark); }
+  .pcard .pspec { font-size:10px; color:var(--muted); margin-top:2px; }
+  .pcard .prat { display:flex; align-items:center; gap:3px; font-size:10px; color:var(--gold); margin-top:5px; font-weight:500; }
+
+  /* ─── SERVICES SCREEN ─── */
+  #services { background:var(--cream); }
+  .svc-header { background:linear-gradient(160deg,#6B0F0F,#A52A2A,#E8631A); padding:48px 22px 22px; flex-shrink:0; }
+  .back-btn { color:#fff; font-size:20px; cursor:pointer; margin-bottom:10px; display:inline-block; opacity:.9; }
+  .svc-header h1 { font-family:'Playfair Display',serif; color:#fff; font-size:22px; }
+  .svc-header p { font-size:12px; color:rgba(255,255,255,0.7); margin-top:4px; }
+  .price-legend { display:flex; gap:16px; margin-top:12px; }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:11px; color:rgba(255,255,255,0.8); }
+  .legend-dot { width:8px; height:8px; border-radius:50%; }
+
+  .svc-scroll { flex:1; overflow-y:auto; padding:14px 16px 100px; }
+  .svc-scroll::-webkit-scrollbar { display:none; }
+
+  .svc-category { margin-bottom:6px; }
+  .cat-label {
+    font-family:'Playfair Display',serif; font-size:15px; color:var(--deep-red);
+    padding:14px 4px 8px; border-bottom:2px solid var(--border);
+    display:flex; align-items:center; gap:8px; margin-bottom:4px;
+  }
+  .cat-label .ci { font-size:18px; }
+
+  .svc-row {
+    display:flex; align-items:center; padding:10px 8px;
+    border-bottom:1px solid rgba(240,223,192,0.6);
+    cursor:pointer; border-radius:10px; transition:background .15s;
+  }
+  .svc-row:hover { background:rgba(232,99,26,0.06); }
+  .svc-row .sr-name { flex:1; font-size:13px; color:var(--dark); line-height:1.3; }
+  .svc-row .sr-name small { display:block; font-size:10px; color:var(--muted); margin-top:1px; }
+  .price-col { width:54px; text-align:center; font-size:12px; font-weight:600; }
+  .p1 { color:var(--saffron); }
+  .p2 { color:var(--deep-red); }
+  .p-na { color:#CCC; font-size:11px; }
+
+  .price-header { display:flex; padding:4px 8px 2px; }
+  .price-header .ph-name { flex:1; font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); }
+  .price-header .ph-col { width:54px; text-align:center; font-size:10px; text-transform:uppercase; letter-spacing:.8px; font-weight:700; }
+  .ph1 { color:var(--saffron); }
+  .ph2 { color:var(--deep-red); }
+
+  .book-float {
+    position:absolute; bottom:90px; left:50%; transform:translateX(-50%);
+    background:linear-gradient(135deg,var(--saffron),#C0392B);
+    color:#fff; border:none; border-radius:20px; padding:14px 36px;
+    font-size:14px; font-family:'Mukta',sans-serif; font-weight:600;
+    cursor:pointer; box-shadow:0 8px 24px rgba(232,99,26,0.4);
+    white-space:nowrap; z-index:10;
+  }
+
+  /* ─── BOOKING ─── */
+  #booking { background:var(--cream); }
+  .screen-header { background:linear-gradient(160deg,#6B0F0F,#A52A2A); padding:48px 22px 22px; flex-shrink:0; }
+  .screen-header h1 { font-family:'Playfair Display',serif; color:#fff; font-size:22px; }
+  .screen-header p { font-size:12px; color:rgba(255,255,255,0.7); margin-top:4px; }
+
+  .bk-scroll { flex:1; overflow-y:auto; padding:18px 18px 100px; }
+  .bk-scroll::-webkit-scrollbar { display:none; }
+  .bk-sec { margin-bottom:20px; }
+  .bk-sec label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:8px; font-weight:600; }
+
+  .pooja-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .pooja-opt { background:var(--card-bg); border:1.5px solid var(--border); border-radius:14px; padding:12px; cursor:pointer; transition:all .2s; }
+  .pooja-opt.sel { border-color:var(--saffron); background:#FFF0E0; }
+  .pooja-opt .po-icon { font-size:22px; margin-bottom:5px; }
+  .pooja-opt .po-name { font-size:12px; font-weight:600; color:var(--dark); }
+  .pooja-opt .po-dur { font-size:10px; color:var(--muted); margin-top:2px; }
+  .pooja-opt .po-price { font-size:13px; font-weight:700; color:var(--saffron); margin-top:5px; }
+
+  .cal-strip { display:flex; gap:7px; overflow-x:auto; padding-bottom:4px; }
+  .cal-strip::-webkit-scrollbar { display:none; }
+  .cal-day { flex-shrink:0; width:50px; background:var(--card-bg); border:1.5px solid var(--border); border-radius:12px; padding:9px 5px; text-align:center; cursor:pointer; transition:all .2s; }
+  .cal-day.sel { background:var(--saffron); border-color:var(--saffron); }
+  .cal-day.sel .dn, .cal-day.sel .dd { color:#fff; }
+  .dn { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; }
+  .dd { font-size:18px; font-weight:700; color:var(--dark); margin-top:2px; }
+  .muhurat { width:5px; height:5px; background:var(--gold); border-radius:50%; margin:3px auto 0; }
+
+  .slots { display:flex; gap:7px; flex-wrap:wrap; }
+  .slot { background:var(--card-bg); border:1.5px solid var(--border); border-radius:10px; padding:7px 12px; font-size:12px; color:var(--dark); cursor:pointer; transition:all .2s; }
+  .slot.sel { background:var(--saffron); border-color:var(--saffron); color:#fff; }
+  .slot.aus { border-color:var(--gold); }
+  .slot.aus::after { content:' ✦'; color:var(--gold); font-size:9px; }
+
+  .confirm-btn { width:100%; background:linear-gradient(135deg,var(--saffron),#C0392B); color:#fff; border:none; border-radius:18px; padding:16px; font-size:15px; font-family:'Mukta',sans-serif; font-weight:600; cursor:pointer; box-shadow:0 8px 24px rgba(232,99,26,0.4); margin-top:6px; letter-spacing:.4px; }
+
+  /* ─── LIVE ─── */
+  #live { background:#0A0300; }
+  .live-hdr { padding:50px 22px 16px; display:flex; align-items:center; gap:12px; flex-shrink:0; }
+  .live-hdr .lb2 { background:#E02020; color:#fff; font-size:10px; font-weight:700; letter-spacing:1px; padding:3px 8px; border-radius:6px; animation:pulseRed 1.5s infinite; }
+  .live-hdr h2 { font-family:'Playfair Display',serif; color:#fff; font-size:17px; flex:1; }
+  .live-hdr .vw { color:#888; font-size:11px; }
+  .live-vid { margin:0 18px; border-radius:18px; background:linear-gradient(135deg,#1A0800,#3D1200); height:190px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; border:1px solid #3A1A00; }
+  .live-vid::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(232,99,26,0.15),transparent 70%); }
+  .live-vid .flame { font-size:56px; animation:flicker 2s infinite alternate; }
+  .live-vid .pt { font-family:'Playfair Display',serif; color:var(--soft-gold); font-size:15px; margin-top:6px; }
+  .live-vid .pn { color:rgba(255,255,255,0.55); font-size:11px; margin-top:3px; }
+  .live-ctrls { display:flex; gap:10px; padding:14px 18px; justify-content:center; }
+  .ctrl-btn { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:10px 16px; color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:5px; }
+  .ctrl-btn.offer { background:rgba(212,160,23,0.18); border-color:rgba(212,160,23,0.4); color:var(--soft-gold); }
+  .up-list { flex:1; overflow-y:auto; padding:0 18px 100px; }
+  .up-list::-webkit-scrollbar { display:none; }
+  .up-title { font-family:'Playfair Display',serif; color:var(--soft-gold); font-size:15px; margin-bottom:10px; }
+  .up-item { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px; margin-bottom:9px; cursor:pointer; }
+  .up-item .ui { font-size:26px; }
+  .up-item .un { color:#fff; font-size:13px; font-weight:500; }
+  .up-item .ut { color:rgba(255,255,255,0.45); font-size:11px; margin-top:2px; }
+  .up-item .rb { background:rgba(232,99,26,0.18); border:1px solid rgba(232,99,26,0.4); color:var(--saffron); border-radius:8px; padding:5px 10px; font-size:11px; cursor:pointer; margin-left:auto; flex-shrink:0; }
+
+  /* ─── PAYMENT ─── */
+  #payment { background:var(--cream); }
+  .pay-scroll { flex:1; overflow-y:auto; padding:18px 18px 100px; }
+  .pay-scroll::-webkit-scrollbar { display:none; }
+  .order-card { background:var(--card-bg); border:1px solid var(--border); border-radius:18px; padding:16px; margin-bottom:18px; }
+  .order-card h3 { font-family:'Playfair Display',serif; font-size:15px; color:var(--dark); margin-bottom:12px; }
+  .orow { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border); font-size:12px; }
+  .orow:last-child { border-bottom:none; font-weight:700; font-size:14px; color:var(--dark); padding-top:10px; }
+  .orow .ol { color:var(--muted); }
+  .pm-list { margin-bottom:18px; }
+  .pm { background:var(--card-bg); border:1.5px solid var(--border); border-radius:14px; padding:13px 15px; display:flex; align-items:center; gap:11px; margin-bottom:9px; cursor:pointer; transition:all .2s; }
+  .pm.sel { border-color:var(--saffron); background:#FFF0E0; }
+  .pm .pmi { font-size:20px; }
+  .pm .pml { font-size:13px; color:var(--dark); font-weight:500; }
+  .pm .chk { margin-left:auto; width:18px; height:18px; border-radius:50%; border:2px solid #DDD; display:flex; align-items:center; justify-content:center; font-size:10px; }
+  .pm.sel .chk { background:var(--saffron); border-color:var(--saffron); color:#fff; }
+  .prasad-tog { background:linear-gradient(135deg,#FFF8EC,#FFE9C0); border:1px solid #F0D080; border-radius:14px; padding:14px; display:flex; align-items:center; gap:11px; margin-bottom:18px; cursor:pointer; }
+  .prasad-tog .pto { flex:1; }
+  .prasad-tog .ptot { font-size:13px; font-weight:600; color:var(--dark); }
+  .prasad-tog .ptos { font-size:11px; color:var(--muted); margin-top:2px; }
+  .tog { width:40px; height:22px; background:var(--saffron); border-radius:11px; position:relative; flex-shrink:0; }
+  .tog::after { content:''; position:absolute; right:3px; top:3px; width:16px; height:16px; background:#fff; border-radius:50%; }
+
+  /* ─── BOTTOM NAV ─── */
+  .bnav { position:absolute; bottom:0; left:0; right:0; height:78px; background:#fff; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-around; padding:0 8px 14px; z-index:20; }
+  .bnav-dark { background:#0D0400; border-top:1px solid rgba(255,255,255,0.08); }
+  .ni { display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; padding:7px 14px; border-radius:10px; }
+  .ni .nic { font-size:19px; color:#BBA070; }
+  .ni .nil { font-size:9px; color:#BBA070; font-weight:500; }
+  .ni.active .nic { color:var(--saffron); }
+  .ni.active .nil { color:var(--saffron); }
+  .bnav-dark .ni .nic { color:#5A3A1A; }
+  .bnav-dark .ni .nil { color:#5A3A1A; }
+  .bnav-dark .ni.active .nic { color:var(--saffron); }
+  .bnav-dark .ni.active .nil { color:var(--saffron); }
+
+  /* ─── SUCCESS ─── */
+  .success-ov { display:none; position:absolute; inset:0; background:rgba(0,0,0,0.87); z-index:200; align-items:center; justify-content:center; flex-direction:column; text-align:center; padding:36px; backdrop-filter:blur(6px); }
+  .success-ov.show { display:flex; }
+  .si { font-size:68px; margin-bottom:14px; animation:pop .4s ease; }
+  @keyframes pop { 0%{transform:scale(0);} 80%{transform:scale(1.1);} 100%{transform:scale(1);} }
+  .success-ov h2 { font-family:'Playfair Display',serif; color:#fff; font-size:22px; }
+  .success-ov p { color:rgba(255,255,255,0.68); font-size:13px; margin-top:8px; line-height:1.6; }
+  .done-btn { margin-top:26px; background:var(--saffron); color:#fff; border:none; border-radius:14px; padding:13px 36px; font-size:15px; font-family:'Mukta',sans-serif; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- ══════════ HOME ══════════ -->
+  <div class="screen active" id="home">
+    <div class="home-header">
+      <div class="app-name">SKVNC</div>
+      <div class="greeting">🙏 Namaste, Harish</div>
+      <h1>Book Your Sacred<br>Ceremonies</h1>
+      <div class="diya">🪔</div>
+      <div class="search-bar">
+        <span>🔍</span>
+        <span style="font-size:12px;">Search pujas, priests, rituals...</span>
+      </div>
+    </div>
+
+    <div class="home-scroll">
+      <div class="live-banner">
+        <div class="live-badge">● LIVE</div>
+        <div>
+          <div class="ltitle">Ganesh Homam</div>
+          <div class="lsub">Pandit Nagendra Udupi • 847 watching</div>
+        </div>
+        <button class="join-btn" onclick="showScreen('live')">Join 🔴</button>
+      </div>
+
+      <div class="sec-head">
+        <h2>Puja & Rituals</h2>
+        <a onclick="showScreen('services')">See all</a>
+      </div>
+      <div class="cat-scroll">
+        <div class="cat-chip active" onclick="activateChip(this)"><span>🕉️</span><p>Samskaras</p></div>
+        <div class="cat-chip" onclick="activateChip(this)"><span>🔥</span><p>Homas</p></div>
+        <div class="cat-chip" onclick="activateChip(this)"><span>☮️</span><p>Shanti</p></div>
+        <div class="cat-chip" onclick="activateChip(this)"><span>🌸</span><p>Poojas</p></div>
+        <div class="cat-chip" onclick="activateChip(this)"><span>🪦</span><p>Shraaddha</p></div>
+        <div class="cat-chip" onclick="activateChip(this)"><span>✨</span><p>Other</p></div>
+      </div>
+
+      <div class="sec-head">
+        <h2>Our Priests</h2>
+        <a>View all</a>
+      </div>
+      <div class="priest-cards">
+        <div class="pcard" onclick="showScreen('booking')">
+          <div class="av">🧘</div>
+          <div class="pi">
+            <div class="pname">Pandit Nagendra Udupi</div>
+            <div class="pspec">Vedic Rituals • Homams</div>
+            <div class="prat">⭐ 4.9 · 312 ceremonies</div>
+          </div>
+        </div>
+        <div class="pcard" onclick="showScreen('booking')">
+          <div class="av">🙏</div>
+          <div class="pi">
+            <div class="pname">Pandit Prassanna Acharya</div>
+            <div class="pspec">South Indian Rituals</div>
+            <div class="prat">⭐ 4.9 · 268 ceremonies</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-head"><h2>Auspicious Days</h2><a>Panchang</a></div>
+      <div style="padding:0 18px;">
+        <div style="background:linear-gradient(135deg,#FFF8EC,#FFE9C0);border:1px solid #F0D080;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;">
+          <span style="font-size:26px;">🌟</span>
+          <div>
+            <div style="font-weight:600;font-size:13px;color:var(--dark);">Ekadashi — Feb 26</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Auspicious for Vishnu Puja & fasting</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bnav">
+      <div class="ni active"><div class="nic">🏠</div><div class="nil">Home</div></div>
+      <div class="ni" onclick="showScreen('services')"><div class="nic">📋</div><div class="nil">Services</div></div>
+      <div class="ni" onclick="showScreen('live')"><div class="nic">📺</div><div class="nil">Live</div></div>
+      <div class="ni"><div class="nic">👤</div><div class="nil">Profile</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ SERVICES ══════════ -->
+  <div class="screen" id="services">
+    <div class="svc-header">
+      <div class="back-btn" onclick="showScreen('home')">←</div>
+      <h1>Services & Pricing</h1>
+      <p>All ceremonies by Pandit Nagendra Udupi &amp; Pandit Prassanna Acharya</p>
+      <div class="price-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--saffron)"></div>Base Price</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--deep-red)"></div>With Items</div>
+      </div>
+    </div>
+
+    <div class="svc-scroll">
+      <div class="price-header">
+        <div class="ph-name">Service</div>
+        <div class="ph-col ph1">Base</div>
+        <div class="ph-col ph2">+ Items</div>
+      </div>
+
+      <!-- SAMSKARAS -->
+      <div class="svc-category">
+        <div class="cat-label"><span class="ci">🕉️</span> Samskaras</div>
+        <div class="svc-row" onclick="bookService('Shuddhi Punyaha','$108')"><div class="sr-name">Shuddhi Punyaha</div><div class="price-col p1">$108</div><div class="price-col p2">$125</div></div>
+        <div class="svc-row" onclick="bookService('Seemantha with Homa','$201')"><div class="sr-name">Seemantha with Homa</div><div class="price-col p1">$201</div><div class="price-col p2">$251</div></div>
+        <div class="svc-row" onclick="bookService('Namakarana','$151')"><div class="sr-name">Namakarana</div><div class="price-col p1">$151</div><div class="price-col p2">$175</div></div>
+        <div class="svc-row" onclick="bookService('Annaprashana','$75')"><div class="sr-name">Annaprashana</div><div class="price-col p1">$75</div><div class="price-col p2">$125</div></div>
+        <div class="svc-row" onclick="bookService('Aksharabhyasa','$75')"><div class="sr-name">Aksharabhyasa</div><div class="price-col p1">$75</div><div class="price-col p2">$108</div></div>
+        <div class="svc-row" onclick="bookService('Chawla','$108')"><div class="sr-name">Chawla</div><div class="price-col p1">$108</div><div class="price-col p2">$125</div></div>
+        <div class="svc-row" onclick="bookService('Chawla with Homa','$151')"><div class="sr-name">Chawla with Homa</div><div class="price-col p1">$151</div><div class="price-col p2">$175</div></div>
+        <div class="svc-row" onclick="bookService('Upanayana','$351')"><div class="sr-name">Upanayana</div><div class="price-col p1">$351</div><div class="price-col p2">$501</div></div>
+        <div class="svc-row" onclick="bookService('Engagement','$201')"><div class="sr-name">Engagement</div><div class="price-col p1">$201</div><div class="price-col p2">$251</div></div>
+        <div class="svc-row" onclick="bookService('Wedding','$501')"><div class="sr-name">Wedding</div><div class="price-col p1">$501</div><div class="price-col p2">$501</div></div>
+      </div>
+
+      <!-- HOMAS -->
+      <div class="svc-category">
+        <div class="cat-label"><span class="ci">🔥</span> Homas</div>
+        <div class="svc-row" onclick="bookService('Ayushya Homa','$151')"><div class="sr-name">Ayushya Homa</div><div class="price-col p1">$151</div><div class="price-col p2">$201</div></div>
+        <div class="svc-row" onclick="bookService('Dhanvanthari Homa','$151')"><div class="sr-name">Dhanvanthari Homa</div><div class="price-col p1">$151</div><div class="price-col p2">$201</div></div>
+        <div class="svc-row" onclick="bookService('Santana Gopalakrishna Mantra Homa','$151')"><div class="sr-name">Santana Gopalakrishna Mantra Homa<small>For Santanam</small></div><div class="price-col p1">$151</div><div class="price-col p2">$201</div></div>
+        <div class="svc-row" onclick="bookService('Durga Homa','$151')"><div class="sr-name">Durga Homa</div><div class="price-col p1">$151</div><div class="price-col p2">$201</div></div>
+        <div class="svc-row" onclick="bookService('Chandika Homa','$301')"><div class="sr-name">Chandika Homa</div><div class="price-col p1">$301</div><div class="price-col p2">$351</div></div>
+        <div class="svc-row" onclick="bookService('Ganapathi Homa','$151')"><div class="sr-name">Ganapathi Homa</div><div class="price-col p1">$151</div><div class="price-col p2">$201</div></div>
+        <div class="svc-row" onclick="bookService('Bala Ganapathi Homa','$151')"><div class="sr-name">Bala Ganapathi Homa<small>Kshipra Vivaha Siddhi</small></div><div class="price-col p1">$151</div><div class="price-col p2">$201</div></div>
+        <div class="svc-row" onclick="bookService('Mrutyunjaya Homa','$151')"><div class="sr-name">Mrutyunjaya Homa</div><div class="price-col p1">$151</div><div class="price-col p2">$201</div></div>
+        <div class="svc-row" onclick="bookService('Navagraha Homa','$151')"><div class="sr-name">Navagraha Homa</div><div class="price-col p1">$151</div><div class="price-col p2">$201</div></div>
+        <div class="svc-row" onclick="bookService('Pavamaana Homa','$251')"><div class="sr-name">Pavamaana Homa</div><div class="price-col p1">$251</div><div class="price-col p2">$301</div></div>
+        <div class="svc-row" onclick="bookService('Sudarshana Homa','$201')"><div class="sr-name">Sudarshana Homa</div><div class="price-col p1">$201</div><div class="price-col p2">$251</div></div>
+        <div class="svc-row" onclick="bookService('Lakshminarayana Hrudaya Homa','$175')"><div class="sr-name">Lakshminarayana Hrudaya Homa</div><div class="price-col p1">$175</div><div class="price-col p2">$201</div></div>
+        <div class="svc-row" onclick="bookService('Manyu Sukta Purascharana Homa','$175')"><div class="sr-name">Manyu Sukta Purascharana Homa</div><div class="price-col p1">$175</div><div class="price-col p2">$201</div></div>
+        <div class="svc-row" onclick="bookService('Vayustuthi Purascharana Homa','$175')"><div class="sr-name">Vayustuthi Purascharana Homa</div><div class="price-col p1">$175</div><div class="price-col p2">$201</div></div>
+      </div>
+
+      <!-- SHANTI -->
+      <div class="svc-category">
+        <div class="cat-label"><span class="ci">☮️</span> Shanti</div>
+        <div class="svc-row" onclick="bookService('Shashtyabdha Shaanthi','$301')"><div class="sr-name">Shashtyabdha Shaanthi<small>60th Birthday</small></div><div class="price-col p1">$301</div><div class="price-col p2">$401</div></div>
+        <div class="svc-row" onclick="bookService('Bheemaratha Shaanthi','$251')"><div class="sr-name">Bheemaratha Shaanthi<small>70th Birthday</small></div><div class="price-col p1">$251</div><div class="price-col p2">$351</div></div>
+        <div class="svc-row" onclick="bookService('Sahasra Chandra Darshana Shanthi','$251')"><div class="sr-name">Sahasra Chandra Darshana Shanthi<small>82nd Birthday</small></div><div class="price-col p1">$251</div><div class="price-col p2">$351</div></div>
+        <div class="svc-row" onclick="bookService('Kuja-Rahu and other Sandhi Shantis','$201')"><div class="sr-name">Kuja-Rahu and other Sandhi Shantis</div><div class="price-col p1">$201</div><div class="price-col p2">$251</div></div>
+        <div class="svc-row" onclick="bookService('Shani Shanti and other Grahashanti Homa','$201')"><div class="sr-name">Shani Shanti &amp; other Grahashanti Homa</div><div class="price-col p1">$201</div><div class="price-col p2">$251</div></div>
+        <div class="svc-row" onclick="bookService('Moola and other Janana Shanti Homa','$201')"><div class="sr-name">Moola and other Janana Shanti Homa</div><div class="price-col p1">$201</div><div class="price-col p2">$251</div></div>
+      </div>
+
+      <!-- POOJAS -->
+      <div class="svc-category">
+        <div class="cat-label"><span class="ci">🌸</span> Poojas</div>
+        <div class="svc-row" onclick="bookService('Ashlesha Bali (Naaga Bali)','$251')"><div class="sr-name">Ashlesha Bali (Naaga Bali)</div><div class="price-col p1">$251</div><div class="price-col p2">$301</div></div>
+        <div class="svc-row" onclick="bookService('Chandika Parayana','$108')"><div class="sr-name">Chandika Parayana</div><div class="price-col p1">$108</div><div class="price-col p2">$125</div></div>
+        <div class="svc-row" onclick="bookService('Durga Deepa Namaskara Pooja','$201')"><div class="sr-name">Durga Deepa Namaskara Pooja</div><div class="price-col p1">$201</div><div class="price-col p2">$251</div></div>
+        <div class="svc-row" onclick="bookService('Swayamvara Parvathi Pooja','$201')"><div class="sr-name">Swayamvara Parvathi Pooja<small>Kshipra Vivaha Siddhi</small></div><div class="price-col p1">$201</div><div class="price-col p2">$251</div></div>
+        <div class="svc-row" onclick="bookService('Satyanarayana Pooja','$151')"><div class="sr-name">Satyanarayana Pooja</div><div class="price-col p1">$151</div><div class="price-col p2">$175</div></div>
+        <div class="svc-row" onclick="bookService('Rudrabhisheka','$125')"><div class="sr-name">Rudrabhisheka</div><div class="price-col p1">$125</div><div class="price-col p2">$151</div></div>
+      </div>
+
+      <!-- SHRAADDHA -->
+      <div class="svc-category">
+        <div class="cat-label"><span class="ci">🪦</span> Shraaddha</div>
+        <div class="svc-row" onclick="bookService('Pinda Pradaana (Chataka)','$151')"><div class="sr-name">Pinda Pradaana (Chataka)</div><div class="price-col p1">$151</div><div class="price-col p2">$201</div></div>
+        <div class="svc-row" onclick="bookService('Tharpana (Sankalpa)','$51')"><div class="sr-name">Tharpana (Sankalpa)</div><div class="price-col p1">$51</div><div class="price-col p-na">—</div></div>
+        <div class="svc-row" onclick="bookService('Mahalaya Paksha Shradha (Chataka)','$201')"><div class="sr-name">Mahalaya Paksha Shradha (Chataka)</div><div class="price-col p1">$201</div><div class="price-col p2">$251</div></div>
+      </div>
+
+      <!-- OTHER SERVICES -->
+      <div class="svc-category">
+        <div class="cat-label"><span class="ci">✨</span> Other Services</div>
+        <div class="svc-row" onclick="bookService('Gruhapravesha','$251')"><div class="sr-name">Gruhapravesha<small>With Punyaha, Vasthu Homa, Bali</small></div><div class="price-col p-na">—</div><div class="price-col p2">$251</div></div>
+        <div class="svc-row" onclick="bookService('Bhoomi Pooja','$151')"><div class="sr-name">Bhoomi Pooja</div><div class="price-col p-na">—</div><div class="price-col p2">$151</div></div>
+        <div class="svc-row" onclick="bookService('Car Pooja','$25')"><div class="sr-name">Car Pooja</div><div class="price-col p1">$25</div><div class="price-col p-na">—</div></div>
+        <div class="svc-row" onclick="bookService('Make Horoscope','$108')"><div class="sr-name">Make Horoscope</div><div class="price-col p1">$108</div><div class="price-col p-na">—</div></div>
+      </div>
+    </div>
+
+    <button class="book-float" onclick="showScreen('booking')">📅 Book a Ceremony</button>
+
+    <div class="bnav">
+      <div class="ni" onclick="showScreen('home')"><div class="nic">🏠</div><div class="nil">Home</div></div>
+      <div class="ni active"><div class="nic">📋</div><div class="nil">Services</div></div>
+      <div class="ni" onclick="showScreen('live')"><div class="nic">📺</div><div class="nil">Live</div></div>
+      <div class="ni"><div class="nic">👤</div><div class="nil">Profile</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ BOOKING ══════════ -->
+  <div class="screen" id="booking">
+    <div class="screen-header">
+      <div class="back-btn" onclick="showScreen('services')">←</div>
+      <h1>Book a Ceremony</h1>
+      <p>Select ritual, priest, date &amp; time</p>
+    </div>
+
+    <div class="bk-scroll">
+      <div class="bk-sec">
+        <label>Select Priest</label>
+        <div style="display:flex;gap:9px;">
+          <div id="pr1" class="pooja-opt sel" style="flex:1;" onclick="selectPriest(this)">
+            <div class="po-icon">🧘</div>
+            <div class="po-name" style="font-size:11px;">Pandit Nagendra Udupi</div>
+          </div>
+          <div id="pr2" class="pooja-opt" style="flex:1;" onclick="selectPriest(this)">
+            <div class="po-icon">🙏</div>
+            <div class="po-name" style="font-size:11px;">Pandit Prassanna Acharya</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bk-sec">
+        <label>Select Ritual</label>
+        <div class="pooja-grid">
+          <div class="pooja-opt sel" onclick="selectPooja(this)">
+            <div class="po-icon">🕉️</div>
+            <div class="po-name">Satyanarayana Pooja</div>
+            <div class="po-dur">⏱ 2–3 hrs</div>
+            <div class="po-price">$151</div>
+          </div>
+          <div class="pooja-opt" onclick="selectPooja(this)">
+            <div class="po-icon">🔥</div>
+            <div class="po-name">Ganapathi Homa</div>
+            <div class="po-dur">⏱ 3–4 hrs</div>
+            <div class="po-price">$151</div>
+          </div>
+          <div class="pooja-opt" onclick="selectPooja(this)">
+            <div class="po-icon">💒</div>
+            <div class="po-name">Wedding</div>
+            <div class="po-dur">⏱ 4–6 hrs</div>
+            <div class="po-price">$501</div>
+          </div>
+          <div class="pooja-opt" onclick="selectPooja(this)">
+            <div class="po-icon">🏠</div>
+            <div class="po-name">Gruhapravesha</div>
+            <div class="po-dur">⏱ 2–3 hrs</div>
+            <div class="po-price">$251</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bk-sec">
+        <label>Select Date</label>
+        <div class="cal-strip">
+          <div class="cal-day" onclick="selectDay(this)"><div class="dn">Mon</div><div class="dd">24</div></div>
+          <div class="cal-day" onclick="selectDay(this)"><div class="dn">Tue</div><div class="dd">25</div></div>
+          <div class="cal-day sel" onclick="selectDay(this)"><div class="dn">Wed</div><div class="dd">26</div><div class="muhurat"></div></div>
+          <div class="cal-day" onclick="selectDay(this)"><div class="dn">Thu</div><div class="dd">27</div></div>
+          <div class="cal-day" onclick="selectDay(this)"><div class="dn">Fri</div><div class="dd">28</div><div class="muhurat"></div></div>
+          <div class="cal-day" onclick="selectDay(this)"><div class="dn">Sat</div><div class="dd">1</div></div>
+          <div class="cal-day" onclick="selectDay(this)"><div class="dn">Sun</div><div class="dd">2</div></div>
+        </div>
+        <div style="margin-top:6px;font-size:10px;color:var(--gold);">✦ Muhurat days marked in gold</div>
+      </div>
+
+      <div class="bk-sec">
+        <label>Select Time</label>
+        <div class="slots">
+          <div class="slot" onclick="selectSlot(this)">6:00 AM</div>
+          <div class="slot aus sel" onclick="selectSlot(this)">7:30 AM</div>
+          <div class="slot" onclick="selectSlot(this)">9:00 AM</div>
+          <div class="slot aus" onclick="selectSlot(this)">10:30 AM</div>
+          <div class="slot" onclick="selectSlot(this)">12:00 PM</div>
+          <div class="slot aus" onclick="selectSlot(this)">6:00 PM</div>
+        </div>
+      </div>
+
+      <button class="confirm-btn" onclick="showScreen('payment')">Proceed to Payment — $151 🙏</button>
+    </div>
+
+    <div class="bnav">
+      <div class="ni" onclick="showScreen('home')"><div class="nic">🏠</div><div class="nil">Home</div></div>
+      <div class="ni" onclick="showScreen('services')"><div class="nic">📋</div><div class="nil">Services</div></div>
+      <div class="ni active"><div class="nic">📅</div><div class="nil">Book</div></div>
+      <div class="ni"><div class="nic">👤</div><div class="nil">Profile</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ LIVE ══════════ -->
+  <div class="screen" id="live" style="background:#0A0300;">
+    <div class="live-hdr">
+      <div class="lb2">● LIVE</div>
+      <h2>Ganesh Homam</h2>
+      <div class="vw">👁 847</div>
+    </div>
+    <div style="padding:0 18px;flex-shrink:0;">
+      <div class="live-vid">
+        <div class="flame">🔥</div>
+        <div class="pt">Ganesh Homam</div>
+        <div class="pn">Pandit Nagendra Udupi</div>
+      </div>
+    </div>
+    <div class="live-ctrls">
+      <button class="ctrl-btn">🔔 Remind</button>
+      <button class="ctrl-btn offer">🌸 Offer Prasad</button>
+      <button class="ctrl-btn">💬 Chat</button>
+    </div>
+    <div class="up-list">
+      <div class="up-title">Upcoming Live Pujas</div>
+      <div class="up-item"><div class="ui">🕉️</div><div><div class="un">Lakshmi Puja</div><div class="ut">Today, 6:00 PM • Pandit Prassanna Acharya</div></div><button class="rb">🔔</button></div>
+      <div class="up-item"><div class="ui">🌕</div><div><div class="un">Satyanarayana Katha</div><div class="ut">Tomorrow, 8:00 AM • Pandit Nagendra Udupi</div></div><button class="rb">🔔</button></div>
+      <div class="up-item"><div class="ui">🔥</div><div><div class="un">Rudrabhishek</div><div class="ut">Mar 1, 7:30 AM • Pandit Prassanna Acharya</div></div><button class="rb">🔔</button></div>
+    </div>
+    <div class="bnav bnav-dark">
+      <div class="ni" onclick="showScreen('home')"><div class="nic">🏠</div><div class="nil">Home</div></div>
+      <div class="ni" onclick="showScreen('services')"><div class="nic">📋</div><div class="nil">Services</div></div>
+      <div class="ni active"><div class="nic">📺</div><div class="nil">Live</div></div>
+      <div class="ni"><div class="nic">👤</div><div class="nil">Profile</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ PAYMENT ══════════ -->
+  <div class="screen" id="payment">
+    <div class="screen-header">
+      <div class="back-btn" onclick="showScreen('booking')">←</div>
+      <h1>Payment</h1>
+      <p>Secure &amp; trusted checkout</p>
+    </div>
+    <div class="pay-scroll">
+      <div class="order-card">
+        <h3>Order Summary</h3>
+        <div class="orow"><span class="ol">Satyanarayana Pooja</span><span>$151</span></div>
+        <div class="orow"><span class="ol">Pandit Nagendra Udupi</span><span></span></div>
+        <div class="orow"><span class="ol">Wed, Feb 26 • 7:30 AM</span><span></span></div>
+        <div class="orow"><span class="ol">Platform fee</span><span>$10</span></div>
+        <div class="orow"><span class="ol">Total</span><span>$161</span></div>
+      </div>
+      <div class="prasad-tog">
+        <span style="font-size:22px;">🍬</span>
+        <div class="pto">
+          <div class="ptot">Add Prasad Delivery</div>
+          <div class="ptos">Receive blessed prasad at home +$15</div>
+        </div>
+        <div class="tog"></div>
+      </div>
+      <div class="pm-list">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:9px;font-weight:600;">Payment Method</div>
+        <div class="pm sel"><div class="pmi">📱</div><div class="pml">Zelle / Venmo / PayPal</div><div class="chk">✓</div></div>
+        <div class="pm"><div class="pmi">💳</div><div class="pml">Credit / Debit Card</div><div class="chk"></div></div>
+        <div class="pm"><div class="pmi">🏦</div><div class="pml">Bank Transfer (ACH)</div><div class="chk"></div></div>
+      </div>
+      <button class="confirm-btn" onclick="showSuccess()">Pay $161 Securely 🙏</button>
+    </div>
+    <div class="bnav">
+      <div class="ni" onclick="showScreen('home')"><div class="nic">🏠</div><div class="nil">Home</div></div>
+      <div class="ni" onclick="showScreen('services')"><div class="nic">📋</div><div class="nil">Services</div></div>
+      <div class="ni active"><div class="nic">📅</div><div class="nil">Book</div></div>
+      <div class="ni"><div class="nic">👤</div><div class="nil">Profile</div></div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-ov" id="successOv">
+    <div class="si">🪔</div>
+    <h2>Booking Confirmed!</h2>
+    <p>Satyanarayana Pooja<br>with Pandit Nagendra Udupi<br>Wed, Feb 26 at 7:30 AM<br><br>May this puja bring peace &amp; prosperity to your home. 🙏</p>
+    <button class="done-btn" onclick="hideSuccess()">Back to Home</button>
+  </div>
+
+</div>
+
+<script>
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+  function activateChip(el) {
+    el.closest('.cat-scroll').querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+  function selectPooja(el) {
+    el.closest('.pooja-grid').querySelectorAll('.pooja-opt').forEach(p => p.classList.remove('sel'));
+    el.classList.add('sel');
+  }
+  function selectPriest(el) {
+    document.getElementById('pr1').classList.remove('sel');
+    document.getElementById('pr2').classList.remove('sel');
+    el.classList.add('sel');
+  }
+  function selectDay(el) {
+    el.closest('.cal-strip').querySelectorAll('.cal-day').forEach(d => d.classList.remove('sel'));
+    el.classList.add('sel');
+  }
+  function selectSlot(el) {
+    el.closest('.slots').querySelectorAll('.slot').forEach(s => s.classList.remove('sel'));
+    el.classList.add('sel');
+  }
+  function bookService(name, price) {
+    showScreen('booking');
+  }
+  function showSuccess() {
+    document.getElementById('successOv').classList.add('show');
+  }
+  function hideSuccess() {
+    document.getElementById('successOv').classList.remove('show');
+    showScreen('home');
+  }
+</script>
+</body>
+</html>
